@@ -48,15 +48,15 @@ YOLO26 本身的核心特性均完整保留：
 
 下表中每一项均为在 7 波段合成数据集上实际运行验证过的结果，未做任何推测：
 
-| 任务 | 模型后缀 | 训练 | 验证 | 推理 | 跟踪 | 导出 | 备注 |
-|---|---|---|---|---|---|---|---|
-| 目标检测 detect | `yolo26.yaml`（另有 `-p2` 小目标头、`-p6` 大尺寸头两个架构变体） | 通过 | 通过 | 通过 | 通过 | 通过 | 标签为 YOLO txt 格式 |
-| 实例分割 segment | `-seg.yaml` / `-seg.pt` | 通过 | 通过 | 通过 | 通过 | 通过 | CopyPaste 增强对任意通道兼容 |
-| 语义分割 semantic | `-sem.yaml` / `-sem.pt` | 通过 | 通过 | 通过 | 不适用 | 通过 | 掩码为独立的灰度 PNG 文件，与图像通道数无关 |
-| 深度估计 depth | `-depth.yaml` / `-depth.pt` | 通过 | 通过 | 通过 | 不适用 | 通过 | 深度真值为独立的 uint16 PNG 文件 |
-| 图像分类 classify | `-cls.yaml` / `-cls.pt` | 通过 | 通过 | 通过 | 不适用 | 通过 | 使用 ImageFolder 目录结构，通道数自动探测 |
-| 姿态估计 pose | `-pose.yaml` / `-pose.pt` | 通过 | 通过 | 通过 | 通过 | 通过 | 关键点标签随图像一起变换 |
-| 有向检测 obb | `-obb.yaml` / `-obb.pt` | 通过 | 通过 | 通过 | 通过 | 通过 | 标签为 4 角点 8 坐标格式 |
+| 任务              | 模型后缀                                                         | 训练 | 验证 | 推理 | 跟踪   | 导出 | 备注                                        |
+| ----------------- | ---------------------------------------------------------------- | ---- | ---- | ---- | ------ | ---- | ------------------------------------------- |
+| 目标检测 detect   | `yolo26.yaml`（另有 `-p2` 小目标头、`-p6` 大尺寸头两个架构变体） | 通过 | 通过 | 通过 | 通过   | 通过 | 标签为 YOLO txt 格式                        |
+| 实例分割 segment  | `-seg.yaml` / `-seg.pt`                                          | 通过 | 通过 | 通过 | 通过   | 通过 | CopyPaste 增强对任意通道兼容                |
+| 语义分割 semantic | `-sem.yaml` / `-sem.pt`                                          | 通过 | 通过 | 通过 | 不适用 | 通过 | 掩码为独立的灰度 PNG 文件，与图像通道数无关 |
+| 深度估计 depth    | `-depth.yaml` / `-depth.pt`                                      | 通过 | 通过 | 通过 | 不适用 | 通过 | 深度真值为独立的 uint16 PNG 文件            |
+| 图像分类 classify | `-cls.yaml` / `-cls.pt`                                          | 通过 | 通过 | 通过 | 不适用 | 通过 | 使用 ImageFolder 目录结构，通道数自动探测   |
+| 姿态估计 pose     | `-pose.yaml` / `-pose.pt`                                        | 通过 | 通过 | 通过 | 通过   | 通过 | 关键点标签随图像一起变换                    |
+| 有向检测 obb      | `-obb.yaml` / `-obb.pt`                                          | 通过 | 通过 | 通过 | 通过   | 通过 | 标签为 4 角点 8 坐标格式                    |
 
 说明：
 
@@ -72,7 +72,6 @@ YOLO26 本身的核心特性均完整保留：
 
 ```python
 import cv2
-import numpy as np
 
 # img: 形状为 (H, W, C) 的 uint8 numpy 数组，C 为波段数（例如 7）
 cv2.imwritemulti("img0.tiff", img.transpose(2, 0, 1))
@@ -80,12 +79,12 @@ cv2.imwritemulti("img0.tiff", img.transpose(2, 0, 1))
 
 以下结论经过实际读写往返测试验证：
 
-| 写法 | 实测结果 | 结论 |
-|---|---|---|
-| `cv2.imwritemulti` 写多页 TIFF（uint8） | 读取结果与原始数组完全一致 | 可以使用 |
-| `tifffile.imwrite(path, arr)` 写多页 TIFF（`arr` 形状 `(C, H, W)`，uint8） | 读取结果与原始数组完全一致 | 可以使用 |
+| 写法                                                                        | 实测结果                               | 结论     |
+| --------------------------------------------------------------------------- | -------------------------------------- | -------- |
+| `cv2.imwritemulti` 写多页 TIFF（uint8）                                     | 读取结果与原始数组完全一致             | 可以使用 |
+| `tifffile.imwrite(path, arr)` 写多页 TIFF（`arr` 形状 `(C, H, W)`，uint8）  | 读取结果与原始数组完全一致             | 可以使用 |
 | `tifffile.imwrite(path, img_hwc)` 写**单页多波段** TIFF（形状 `(H, W, C)`） | 读回维度错乱（例如得到 `(40, 7, 32)`） | 禁止使用 |
-| 多页 TIFF 但像素类型为 **float32** | 读回维度错乱 | 禁止使用 |
+| 多页 TIFF 但像素类型为 **float32**                                          | 读回维度错乱                           | 禁止使用 |
 
 除存储格式外的其它要求：
 
@@ -111,23 +110,23 @@ convert_to_multispectral("path/to/images", n_channels=7)
 
 ```yaml
 # ms.yaml
-path: dataset_root          # 数据集根目录（绝对路径，或相对于 datasets_dir 的路径）
-train: images/train         # 训练图像目录（相对 path）
-val: images/val             # 验证图像目录（相对 path）
-test: images/test           # 可选：测试图像目录
-nc: 2                       # 类别数量
-names: ['class_a', 'class_b']
-channels: 7                 # 关键字段：每个图像的波段数
+path: dataset_root # 数据集根目录（绝对路径，或相对于 datasets_dir 的路径）
+train: images/train # 训练图像目录（相对 path）
+val: images/val # 验证图像目录（相对 path）
+test: images/test # 可选：测试图像目录
+nc: 2 # 类别数量
+names: ["class_a", "class_b"]
+channels: 7 # 关键字段：每个图像的波段数
 ```
 
 各任务的附加配置与标签差异：
 
-| 任务 | 额外配置字段 | 标签格式（labels 目录下 txt，每行一个目标） |
-|---|---|---|
-| 目标检测 detect | 无 | `类别 x中心 y中心 宽 高`（共 5 列，坐标归一化） |
-| 实例分割 segment | 无 | `类别 x1 y1 x2 y2 ...`（多边形顶点，至少 3 个点） |
-| 有向检测 obb | 无 | `类别 x1 y1 x2 y2 x3 y3 x4 y4`（4 角点，共 9 列，归一化） |
-| 姿态估计 pose | `kpt_shape: [关键点数, 维度]`，例如 `kpt_shape: [17, 3]`；若要启用水平/垂直翻转增强还需提供 `flip_idx` 数组，否则翻转增强自动关闭 | `类别 x中心 y中心 宽 高 kpt1_x kpt1_y [kpt1_可见度] ...`（5 加上 关键点数乘维度 列） |
+| 任务             | 额外配置字段                                                                                                                      | 标签格式（labels 目录下 txt，每行一个目标）                                          |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 目标检测 detect  | 无                                                                                                                                | `类别 x中心 y中心 宽 高`（共 5 列，坐标归一化）                                      |
+| 实例分割 segment | 无                                                                                                                                | `类别 x1 y1 x2 y2 ...`（多边形顶点，至少 3 个点）                                    |
+| 有向检测 obb     | 无                                                                                                                                | `类别 x1 y1 x2 y2 x3 y3 x4 y4`（4 角点，共 9 列，归一化）                            |
+| 姿态估计 pose    | `kpt_shape: [关键点数, 维度]`，例如 `kpt_shape: [17, 3]`；若要启用水平/垂直翻转增强还需提供 `flip_idx` 数组，否则翻转增强自动关闭 | `类别 x中心 y中心 宽 高 kpt1_x kpt1_y [kpt1_可见度] ...`（5 加上 关键点数乘维度 列） |
 
 目录结构示例：
 
@@ -165,7 +164,7 @@ train: images/train
 val: images/val
 masks_dir: masks
 nc: 2
-names: ['road', 'building']
+names: ["road", "building"]
 channels: 7
 ```
 
@@ -185,12 +184,12 @@ dataset_root/
 path: dataset_root
 train: images/train
 val: images/val
-max_depth: 80          # 单位米；超过该值的真值不参与验证指标计算
+max_depth: 80 # 单位米；超过该值的真值不参与验证指标计算
 nc: 1
 names:
   0: depth
 channels: 7
-depth_scale: 100       # PNG 中数值 100 表示真实距离 1 米
+depth_scale: 100 # PNG 中数值 100 表示真实距离 1 米
 ```
 
 ```text
@@ -208,7 +207,7 @@ dataset_root/
 ```python
 from ultralytics import YOLO
 
-model = YOLO("yolo26n.yaml")     # 尺度可选 n/s/m/l/x；任务后缀 -seg/-pose/-obb/-cls/-sem/-depth 同理可用
+model = YOLO("yolo26n.yaml")  # 尺度可选 n/s/m/l/x；任务后缀 -seg/-pose/-obb/-cls/-sem/-depth 同理可用
 model.train(data="ms.yaml", epochs=100, imgsz=640)
 ```
 
@@ -225,15 +224,15 @@ model.train(data="ms.yaml", epochs=100, imgsz=640)
 
 ### 数据增强行为
 
-| 增强 | 多光谱下的行为 | 原因 |
-|---|---|---|
-| mosaic / mixup / cutmix | 正常生效 | 实现基于数组拼接与混合，与通道数无关 |
-| 随机水平/垂直翻转、透视变换、缩放平移 | 正常生效 | 几何运算逐波段一致处理 |
-| HSV 色相/饱和度/明度抖动（hsv_h/s/v 参数） | 自动跳过 | HSV 色彩空间仅对 3 通道 BGR 图像有意义 |
-| BGR 通道随机反转（bgr 参数） | 自动跳过 | 代码内已限定仅在 3 通道时执行 |
-| Albumentations 第三方增强管线 | 自动跳过 | 该库的管线假定 3 通道图像 |
-| 分类的随机擦除 RandomErasing | 正常生效 | 多光谱专用变换管线的一部分 |
-| 分类的 RandAugment/AutoAugment/AugMix | 自动跳过 | 这些策略内置 RGB 假设 |
+| 增强                                       | 多光谱下的行为 | 原因                                   |
+| ------------------------------------------ | -------------- | -------------------------------------- |
+| mosaic / mixup / cutmix                    | 正常生效       | 实现基于数组拼接与混合，与通道数无关   |
+| 随机水平/垂直翻转、透视变换、缩放平移      | 正常生效       | 几何运算逐波段一致处理                 |
+| HSV 色相/饱和度/明度抖动（hsv_h/s/v 参数） | 自动跳过       | HSV 色彩空间仅对 3 通道 BGR 图像有意义 |
+| BGR 通道随机反转（bgr 参数）               | 自动跳过       | 代码内已限定仅在 3 通道时执行          |
+| Albumentations 第三方增强管线              | 自动跳过       | 该库的管线假定 3 通道图像              |
+| 分类的随机擦除 RandomErasing               | 正常生效       | 多光谱专用变换管线的一部分             |
+| 分类的 RandAugment/AutoAugment/AugMix      | 自动跳过       | 这些策略内置 RGB 假设                  |
 
 ### 缓存说明
 
@@ -245,19 +244,19 @@ model.train(data="ms.yaml", epochs=100, imgsz=640)
 ```python
 from ultralytics import YOLO
 
-model = YOLO("best.pt")            # 输入通道数自动从 checkpoint 内记录的 yaml.channels 恢复
+model = YOLO("best.pt")  # 输入通道数自动从 checkpoint 内记录的 yaml.channels 恢复
 results = model("image.tiff")
-results[0].orig_img.shape          # (H, W, 7)，波段顺序与文件一致
-results[0].boxes                   # 检测结果
+results[0].orig_img.shape  # (H, W, 7)，波段顺序与文件一致
+results[0].boxes  # 检测结果
 ```
 
 三种输入方式下的波段顺序行为：
 
-| 输入方式 | 波段顺序行为 |
-|---|---|
-| TIFF 文件路径 | 按文件内的波段顺序原样进入网络，不做任何重排 |
-| numpy 数组 `(H, W, C)` | 同上；仅当 C 恰好等于 3 时执行 BGR 与 RGB 之间的转换 |
-| torch 张量 `(B, C, H, W)` | 完全按传入顺序使用，框架不做任何转换 |
+| 输入方式                  | 波段顺序行为                                         |
+| ------------------------- | ---------------------------------------------------- |
+| TIFF 文件路径             | 按文件内的波段顺序原样进入网络，不做任何重排         |
+| numpy 数组 `(H, W, C)`    | 同上；仅当 C 恰好等于 3 时执行 BGR 与 RGB 之间的转换 |
+| torch 张量 `(B, C, H, W)` | 完全按传入顺序使用，框架不做任何转换                 |
 
 跟踪用法：
 
@@ -267,25 +266,25 @@ results = model.track("frame_%04d.tiff", persist=True, stream=True)
 
 ## 输出物说明
 
-| 输出内容 | 通道情况 | 说明 |
-|---|---|---|
-| `results[0].orig_img` | **完整 N 波段原图** | 后续自定义处理一律从这里取原始波段数据 |
-| 标注预测图（save=True 或 plot() 生成的 JPG/PNG） | 前 3 个波段渲染 | 显示文件格式本身最多支持 4 通道 |
-| save_crop 导出的目标裁剪图 | 前 3 个波段 JPG | 同时适用于 Re-ID 特征提取路径 |
-| train_batch*.jpg / val_batch*.jpg 训练验证网格图 | 前 3 个波段拼接 | |
-| results.png 训练曲线、PR/F1 曲线、混淆矩阵 | 与通道无关 | 基于 CSV 数值绘制 |
+| 输出内容                                         | 通道情况            | 说明                                   |
+| ------------------------------------------------ | ------------------- | -------------------------------------- |
+| `results[0].orig_img`                            | **完整 N 波段原图** | 后续自定义处理一律从这里取原始波段数据 |
+| 标注预测图（save=True 或 plot() 生成的 JPG/PNG） | 前 3 个波段渲染     | 显示文件格式本身最多支持 4 通道        |
+| save_crop 导出的目标裁剪图                       | 前 3 个波段 JPG     | 同时适用于 Re-ID 特征提取路径          |
+| train_batch*.jpg / val_batch*.jpg 训练验证网格图 | 前 3 个波段拼接     |                                        |
+| results.png 训练曲线、PR/F1 曲线、混淆矩阵       | 与通道无关          | 基于 CSV 数值绘制                      |
 
 ## 模型导出
 
-| 导出格式 | 多光谱支持 | 说明 |
-|---|---|---|
-| ONNX | 支持，已实测全部七类任务 | 输入维度包含实际通道数 |
-| TensorRT engine | 支持 | 元数据携带通道数，性能基准测试同样适配 |
-| OpenVINO | 支持 | |
-| TorchScript | 支持 | |
-| Ascend .om | 支持 | 按 dummy 输入的实际通道数生成 |
-| LiteRT (TFLite) | 支持 | |
-| CoreML | 不支持 | coremltools 图像输入上限 3 通道，超过时导出会明确报错 |
+| 导出格式        | 多光谱支持               | 说明                                                  |
+| --------------- | ------------------------ | ----------------------------------------------------- |
+| ONNX            | 支持，已实测全部七类任务 | 输入维度包含实际通道数                                |
+| TensorRT engine | 支持                     | 元数据携带通道数，性能基准测试同样适配                |
+| OpenVINO        | 支持                     |                                                       |
+| TorchScript     | 支持                     |                                                       |
+| Ascend .om      | 支持                     | 按 dummy 输入的实际通道数生成                         |
+| LiteRT (TFLite) | 支持                     |                                                       |
+| CoreML          | 不支持                   | coremltools 图像输入上限 3 通道，超过时导出会明确报错 |
 
 ```python
 model.export(format="onnx", imgsz=640)
@@ -297,22 +296,22 @@ model.export(format="onnx", imgsz=640)
 
 相对官方仓库共修改 `ultralytics/` 目录下 14 个文件，逐项如下：
 
-| 文件 | 修改内容 | 解决的问题 |
-|---|---|---|
-| `nn/tasks.py` | `BaseModel` 新增 `channels` 属性，返回 `self.yaml["channels"]` | 推理时 `predictor` 通过该属性得知模型需要的波段数，从而正确加载图像；此前该属性缺失，任何大于 3 通道的模型推理都会被当作 3 通道处理 |
-| `data/augment.py` | 新增 `classify_multispectral_transforms()` 函数，提供基于 CHW 张量的分类变换（训练态：RandomResizedCrop 加翻转加 RandomErasing；评估态：短边缩放加中心裁剪） | 分类任务原有的 torchvision 管线基于 PIL 图像，无法表达超过 4 通道的数据，遇到多光谱样本直接崩溃 |
-| `data/dataset.py` | `ClassificationDataset` 改用 `imread` 读取图像（保留 TIFF 全部波段）；`__getitem__` 按通道数分发到 PIL 路径或多光谱张量路径；RAM 与磁盘两条缓存路径同步改用全波段读取 | 分类数据集原先用 `cv2.imread` 读 3 通道再转 PIL，多光谱样本会在颜色空间转换处崩溃，且缓存只保留前 3 波段造成静默数据错误 |
-| `data/utils.py` | `check_cls_dataset()` 读取一张样本图像探测实际通道数并写入返回字典 | 分类数据集描述字典原先硬编码 `channels: 3`，导致分类模型永远按 3 通道构建，与 7 波段数据在前向传播时不匹配 |
-| `models/yolo/classify/predict.py` | 分类预测器的 `preprocess` 按每张图的通道数分发：标准 3/4 通道走原 PIL 路径，其余走多光谱张量管线 | 修复分类推理在多光谱输入下的崩溃 |
-| `models/yolo/detect/predict.py` | postprocess 中将张量转回 numpy 后的 BGR↔RGB 翻转改为仅在通道数为 3 时执行 | 张量直接输入时，多光谱波段序会被无条件翻转导致语义错误；segment、pose、obb 三个预测器继承本类自动获得修复 |
-| `models/rtdetr/predict.py` | 同上 | 同上 |
-| `models/yolo/semantic/predict.py` | 同上 | 同上 |
-| `models/yolo/depth/predict.py` | 同上 | 同上 |
-| `utils/plotting.py` | `save_one_box()` 在图像大于 3 波段时先取前 3 波段再执行裁剪与保存 | 修复 save_crop 在多光谱下的崩溃（PIL 无法编码 7 通道数组）；该函数同时被 Re-ID 特征提取与 object_cropper 方案调用，一并修复 |
-| `trackers/utils/gmc.py` | 新增 `_to_gray()` 辅助函数：2 维直接返回；3/4 通道走 cvtColor 灰度化；更多通道取各波段均值转为亮度图。三处运动补偿算法统一调用 | 跟踪器的全局运动补偿原先只处理 3 通道帧，多光谱帧传入 cv2 特征算法会抛异常，导致运动补偿退化为恒等矩阵并刷警告日志 |
-| `utils/torch_utils.py` | `attempt_compile()` 的预热 dummy 输入改为按 `getattr(model, "channels", 3)` 构建 | 修复 `compile=True` 训练多光谱模型时预热阶段必然崩溃的问题 |
-| `utils/benchmarks.py` | TensorRT 性能基准的假输入从引擎元数据读取通道数 | 修复对多光谱导出引擎执行 benchmark 时输入通道不匹配的崩溃 |
-| `docs/en/models/yolo26.md` | 新增「多光谱输入」章节 | 功能文档 |
+| 文件                              | 修改内容                                                                                                                                                              | 解决的问题                                                                                                                          |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `nn/tasks.py`                     | `BaseModel` 新增 `channels` 属性，返回 `self.yaml["channels"]`                                                                                                        | 推理时 `predictor` 通过该属性得知模型需要的波段数，从而正确加载图像；此前该属性缺失，任何大于 3 通道的模型推理都会被当作 3 通道处理 |
+| `data/augment.py`                 | 新增 `classify_multispectral_transforms()` 函数，提供基于 CHW 张量的分类变换（训练态：RandomResizedCrop 加翻转加 RandomErasing；评估态：短边缩放加中心裁剪）          | 分类任务原有的 torchvision 管线基于 PIL 图像，无法表达超过 4 通道的数据，遇到多光谱样本直接崩溃                                     |
+| `data/dataset.py`                 | `ClassificationDataset` 改用 `imread` 读取图像（保留 TIFF 全部波段）；`__getitem__` 按通道数分发到 PIL 路径或多光谱张量路径；RAM 与磁盘两条缓存路径同步改用全波段读取 | 分类数据集原先用 `cv2.imread` 读 3 通道再转 PIL，多光谱样本会在颜色空间转换处崩溃，且缓存只保留前 3 波段造成静默数据错误            |
+| `data/utils.py`                   | `check_cls_dataset()` 读取一张样本图像探测实际通道数并写入返回字典                                                                                                    | 分类数据集描述字典原先硬编码 `channels: 3`，导致分类模型永远按 3 通道构建，与 7 波段数据在前向传播时不匹配                          |
+| `models/yolo/classify/predict.py` | 分类预测器的 `preprocess` 按每张图的通道数分发：标准 3/4 通道走原 PIL 路径，其余走多光谱张量管线                                                                      | 修复分类推理在多光谱输入下的崩溃                                                                                                    |
+| `models/yolo/detect/predict.py`   | postprocess 中将张量转回 numpy 后的 BGR↔RGB 翻转改为仅在通道数为 3 时执行                                                                                             | 张量直接输入时，多光谱波段序会被无条件翻转导致语义错误；segment、pose、obb 三个预测器继承本类自动获得修复                           |
+| `models/rtdetr/predict.py`        | 同上                                                                                                                                                                  | 同上                                                                                                                                |
+| `models/yolo/semantic/predict.py` | 同上                                                                                                                                                                  | 同上                                                                                                                                |
+| `models/yolo/depth/predict.py`    | 同上                                                                                                                                                                  | 同上                                                                                                                                |
+| `utils/plotting.py`               | `save_one_box()` 在图像大于 3 波段时先取前 3 波段再执行裁剪与保存                                                                                                     | 修复 save_crop 在多光谱下的崩溃（PIL 无法编码 7 通道数组）；该函数同时被 Re-ID 特征提取与 object_cropper 方案调用，一并修复         |
+| `trackers/utils/gmc.py`           | 新增 `_to_gray()` 辅助函数：2 维直接返回；3/4 通道走 cvtColor 灰度化；更多通道取各波段均值转为亮度图。三处运动补偿算法统一调用                                        | 跟踪器的全局运动补偿原先只处理 3 通道帧，多光谱帧传入 cv2 特征算法会抛异常，导致运动补偿退化为恒等矩阵并刷警告日志                  |
+| `utils/torch_utils.py`            | `attempt_compile()` 的预热 dummy 输入改为按 `getattr(model, "channels", 3)` 构建                                                                                      | 修复 `compile=True` 训练多光谱模型时预热阶段必然崩溃的问题                                                                          |
+| `utils/benchmarks.py`             | TensorRT 性能基准的假输入从引擎元数据读取通道数                                                                                                                       | 修复对多光谱导出引擎执行 benchmark 时输入通道不匹配的崩溃                                                                           |
+| `docs/en/models/yolo26.md`        | 新增「多光谱输入」章节                                                                                                                                                | 功能文档                                                                                                                            |
 
 以下基础设施在仓库中此前已经存在，本次未做改动即直接生效，列出以便理解全貌：
 
@@ -372,14 +371,14 @@ model.yaml["channels"] -> 构造 dummy 输入 (batch, 7, H, W)
 
 ## 已知限制
 
-| 限制 | 详细说明 |
-|---|---|
-| CoreML 导出 | coremltools 的图像类型输入最多支持 3 通道，更宽输入会在导出时报明确错误（不是静默错误）；ONNX、TensorRT、OpenVINO、TorchScript、Ascend、LiteRT 均不受影响 |
-| YOLOE 与 YOLO-World | 开放词汇模式的 CLIP 提示编码器假设 RGB 3 通道输入，文本提示与视觉提示流程不适用于多光谱 |
-| SAM 与 FastSAM | 这两个模型族本身即为 3 通道设计，未纳入本次多光谱适配范围 |
-| 分类 auto_augment | RandAugment、AutoAugment、AugMix 等 RGB 策略仅作用于不超过 4 通道的样本；多光谱样本使用几何增强加随机擦除的组合 |
-| 显存占用 | 模型首层参数量与显存占用随输入通道数近似线性增长；高波段数配合大分辨率训练时请注意下调 batch size |
-| 波段子集选择 | 框架不支持运行时选取部分波段参与训练或推理（例如 7 选 4），此类需求应在数据预处理阶段完成波段筛选与重写 |
+| 限制                | 详细说明                                                                                                                                                  |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CoreML 导出         | coremltools 的图像类型输入最多支持 3 通道，更宽输入会在导出时报明确错误（不是静默错误）；ONNX、TensorRT、OpenVINO、TorchScript、Ascend、LiteRT 均不受影响 |
+| YOLOE 与 YOLO-World | 开放词汇模式的 CLIP 提示编码器假设 RGB 3 通道输入，文本提示与视觉提示流程不适用于多光谱                                                                   |
+| SAM 与 FastSAM      | 这两个模型族本身即为 3 通道设计，未纳入本次多光谱适配范围                                                                                                 |
+| 分类 auto_augment   | RandAugment、AutoAugment、AugMix 等 RGB 策略仅作用于不超过 4 通道的样本；多光谱样本使用几何增强加随机擦除的组合                                           |
+| 显存占用            | 模型首层参数量与显存占用随输入通道数近似线性增长；高波段数配合大分辨率训练时请注意下调 batch size                                                         |
+| 波段子集选择        | 框架不支持运行时选取部分波段参与训练或推理（例如 7 选 4），此类需求应在数据预处理阶段完成波段筛选与重写                                                   |
 
 ## 常见问题 FAQ
 
