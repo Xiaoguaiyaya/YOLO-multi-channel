@@ -8,6 +8,8 @@
 
 </div>
 
+![License](https://img.shields.io/badge/license-AGPL--3.0-blue) ![Python](https://img.shields.io/badge/python-3.8+-green) ![PyTorch](https://img.shields.io/badge/PyTorch-1.8+-ee4c2c) ![Upstream](https://img.shields.io/badge/upstream-Ultralytics%20YOLO26-111111) ![Tasks](https://img.shields.io/badge/tasks-detect%20%C2%B7%20seg%20%C2%B7%20obb%20%C2%B7%20pose%20%C2%B7%20cls%20%C2%B7%20sem%20%C2%B7%20depth-8A2BE2)
+
 ---
 
 ## 目录
