@@ -265,7 +265,7 @@ path: path/to/dataset
 train: images/train
 val: images/val
 nc: 2
-names: ['class_a', 'class_b']
+names: ["class_a", "class_b"]
 channels: 7 # 每张图像的光谱波段数
 ```
 
