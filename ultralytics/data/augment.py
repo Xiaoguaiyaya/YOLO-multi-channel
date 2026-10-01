@@ -2919,8 +2919,8 @@ def classify_multispectral_transforms(
     RGB-only operations (color jitter, auto augment, HSV). Input band order is preserved unchanged.
 
     Args:
-        size (tuple[int, int] | int): The target size for the transformed image. If an int, it defines the shortest
-            edge for evaluation resizing; crops are always (size, size).
+        size (tuple[int, int] | int): The target size for the transformed image. If an int, it defines the shortest edge
+            for evaluation resizing; crops are always (size, size).
         scale (tuple[float, float] | None): Range of the proportion of the original image area to crop (training only).
         ratio (tuple[float, float] | None): Range of aspect ratio for the cropped area (training only).
         hflip (float): Probability of horizontal flip (training only).
@@ -2945,7 +2945,9 @@ def classify_multispectral_transforms(
     if augment:
         tfl = [
             T.RandomResizedCrop(
-                size, scale=tuple(scale or (0.08, 1.0)), ratio=tuple(ratio or (3.0 / 4.0, 4.0 / 3.0)),
+                size,
+                scale=tuple(scale or (0.08, 1.0)),
+                ratio=tuple(ratio or (3.0 / 4.0, 4.0 / 3.0)),
                 interpolation=interpolation,
             )
         ]
