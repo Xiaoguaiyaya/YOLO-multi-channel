@@ -140,7 +140,7 @@ class GMC:
             >>> print(transformation_matrix.shape)
             (2, 3)
         """
-        height, width, c = raw_frame.shape
+        height, width, _c = raw_frame.shape
         frame = _to_gray(raw_frame)
         H = np.eye(2, 3, dtype=np.float32)
 
@@ -182,7 +182,7 @@ class GMC:
             >>> print(transformation_matrix.shape)
             (2, 3)
         """
-        height, width, c = raw_frame.shape
+        height, width, _c = raw_frame.shape
         frame = _to_gray(raw_frame)
         H = np.eye(2, 3)
 
@@ -300,7 +300,7 @@ class GMC:
             >>> print(transformation_matrix.shape)
             (2, 3)
         """
-        height, width, c = raw_frame.shape
+        height, width, _c = raw_frame.shape
         frame = _to_gray(raw_frame)
         H = np.eye(2, 3)
 
